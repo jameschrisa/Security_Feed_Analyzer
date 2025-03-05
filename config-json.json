@@ -1,0 +1,124 @@
+{
+  "feeds": [
+    {
+      "name": "APT Groups and Operations",
+      "url": "https://docs.google.com/spreadsheets/u/1/d/1H9_xaxQHpWaa4O_Son4Gx0YOIzlcBWMsdvePFX68EKU/pubhtml",
+      "description": "A spreadsheet containing information and intelligence about APT groups, operations and tactics."
+    },
+    {
+      "name": "Binary Defense IP Banlist",
+      "url": "https://www.binarydefense.com/banlist.txt",
+      "description": "Binary Defense Systems Artillery Threat Intelligence Feed and IP Banlist Feed."
+    },
+    {
+      "name": "BGP Ranking",
+      "url": "https://www.circl.lu/projects/bgpranking/",
+      "description": "Ranking of ASNs having the most malicious content."
+    },
+    {
+      "name": "Botnet Tracker",
+      "url": "https://intel.malwaretech.com/",
+      "description": "Tracks several active botnets."
+    },
+    {
+      "name": "BOTVRIJ.EU",
+      "url": "http://www.botvrij.eu/",
+      "description": "Botvrij.eu provides different sets of open source IOCs that you can use in your security devices to detect possible malicious activity."
+    },
+    {
+      "name": "BruteForceBlocker",
+      "url": "https://danger.rulez.sk/index.php/bruteforceblocker/download/",
+      "description": "BruteForceBlocker is a perl script that monitors a server's sshd logs and identifies brute force attacks, which it then uses to automatically configure firewall blocking rules and submit those IPs back to the project site."
+    },
+    {
+      "name": "CertStream",
+      "url": "https://certstream.calidog.io/",
+      "description": "Real-time certificate transparency log update stream. See SSL certificates as they're issued in real time."
+    },
+    {
+      "name": "CI Army List",
+      "url": "http://cinsscore.com/list/ci-badguys.txt",
+      "description": "A subset of the commercial CINS Score list, focused on poorly rated IPs that are not currently present on other threatlists."
+    },
+    {
+      "name": "Cisco Umbrella",
+      "url": "http://s3-us-west-1.amazonaws.com/umbrella-static/index.html",
+      "description": "Probable Whitelist of the top 1 million sites resolved by Cisco Umbrella (was OpenDNS)."
+    },
+    {
+      "name": "Feodo Tracker",
+      "url": "https://feodotracker.abuse.ch/",
+      "description": "The Feodo Tracker abuse.ch tracks the Feodo trojan."
+    },
+    {
+      "name": "FireHOL IP Lists",
+      "url": "http://iplists.firehol.org/",
+      "description": "400+ publicly available IP Feeds analysed to document their evolution, geo-map, age of IPs, retention policy, overlaps. The site focuses on cyber crime (attacks, abuse, malware)."
+    },
+    {
+      "name": "GreyNoise",
+      "url": "http://greynoise.io/",
+      "description": "GreyNoise collects and analyzes data on Internet-wide scanning activity. It collects data on benign scanners such as Shodan.io, as well as malicious actors like SSH and telnet worms."
+    },
+    {
+      "name": "MalwareBazaar",
+      "url": "https://bazaar.abuse.ch/",
+      "description": "MalwareBazaar is a project from abuse.ch with the goal of sharing malware samples with the infosec community, AV vendors and threat intelligence providers."
+    },
+    {
+      "name": "Malware-Traffic-Analysis",
+      "url": "https://malware-traffic-analysis.net/",
+      "description": "This blog focuses on network traffic related to malware infections. Contains traffic analysis exercises, tutorials, malware samples, pcap files of malicious network traffic, and technical blog posts with observations."
+    },
+    {
+      "name": "OpenPhish Feeds",
+      "url": "https://openphish.com/phishing_feeds.html",
+      "description": "OpenPhish receives URLs from multiple streams and analyzes them using its proprietary phishing detection algorithms. There are free and commercial offerings available."
+    },
+    {
+      "name": "PhishTank",
+      "url": "https://www.phishtank.com/developer_info.php",
+      "description": "PhishTank delivers a list of suspected phishing URLs. Their data comes from human reports, but they also ingest external feeds where possible. It's a free service, but registering for an API key is sometimes necessary."
+    },
+    {
+      "name": "Talos",
+      "url": "https://www.talosintelligence.com/",
+      "description": "Cisco Talos Intelligence Group is one of the largest commercial threat intelligence teams in the world, comprised of world-class researchers, analysts and engineers. These teams are supported by unrivaled telemetry and sophisticated systems to create accurate, rapid and actionable threat intelligence for Cisco customers, products and services."
+    },
+    {
+      "name": "ThreatFox",
+      "url": "https://threatfox.abuse.ch/",
+      "description": "ThreatFox is a free platform from abuse.ch with the goal of sharing indicators of compromise (IOCs) associated with malware with the infosec community, AV vendors and threat intelligence providers."
+    },
+    {
+      "name": "URLhaus",
+      "url": "https://urlhaus.abuse.ch",
+      "description": "URLhaus is a project from abuse.ch with the goal of sharing malicious URLs that are being used for malware distribution."
+    },
+    {
+      "name": "Krebs on Security",
+      "url": "https://krebsonsecurity.com",
+      "description": "Brian Krebs' blog covering cybersecurity news and investigations."
+    },
+    {
+      "name": "The Hacker News",
+      "url": "https://thehackernews.com/",
+      "description": "Cybersecurity news and analysis site."
+    },
+    {
+      "name": "Bleeping Computer",
+      "url": "https://www.bleepingcomputer.com/",
+      "description": "Information security and technology news site."
+    },
+    {
+      "name": "Dark Reading",
+      "url": "https://www.darkreading.com/",
+      "description": "Cybersecurity news and information."
+    },
+    {
+      "name": "The Record",
+      "url": "https://therecord.media/",
+      "description": "Cybersecurity news from Recorded Future."
+    }
+  ]
+}

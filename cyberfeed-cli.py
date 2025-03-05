@@ -26,31 +26,65 @@ from rich.prompt import Prompt
 from rich.layout import Layout
 from rich.columns import Columns
 
-# Constants
-CONFIG_FILE = "valid-threat-intel-feeds.json"
-UPDATE_INTERVAL = 60  # seconds
-MAX_ENTRIES = 100
-USER_AGENT = "CyberFeed CLI/1.0"
-
 # Global variables
 console = Console()
 stop_event = threading.Event()
 feed_entries = []
 feed_lock = threading.Lock()
 
-# Category mapping based on keywords
-CATEGORY_KEYWORDS = {
-    "malware": ["malware", "virus", "trojan", "ransomware", "botnet", "worm", "spyware"],
-    "phishing": ["phish", "phishing", "social engineering", "scam", "fraud"],
-    "vulnerability": ["vuln", "cve", "exploit", "disclosure", "patch", "bug", "zero-day", "0day"],
-    "network": ["network", "traffic", "packet", "dns", "ip", "protocol", "router"],
-    "threat_actor": ["apt", "threat actor", "group", "nation state", "campaign", "hacker"],
-    "infrastructure": ["c2", "command and control", "infrastructure", "host", "domain", "server"],
-    "defense": ["defense", "protection", "security", "mitigation", "incident response", "soc"],
-    "compliance": ["compliance", "regulation", "standard", "iso", "gdpr", "hipaa", "pci"],
-    "iot": ["iot", "internet of things", "smart device", "embedded", "firmware"],
-    "cloud": ["cloud", "aws", "azure", "gcp", "saas", "paas", "iaas"],
+# Default configuration values
+DEFAULT_CONFIG = {
+    "update_interval": 60,  # seconds
+    "max_entries": 100,
+    "user_agent": "CyberFeed CLI/1.0",
+    "feed_sources_file": "valid-threat-intel-feeds.json",
+    "categories": {
+        "malware": ["malware", "virus", "trojan", "ransomware", "botnet", "worm", "spyware"],
+        "phishing": ["phish", "phishing", "social engineering", "scam", "fraud"],
+        "vulnerability": ["vuln", "cve", "exploit", "disclosure", "patch", "bug", "zero-day", "0day"],
+        "network": ["network", "traffic", "packet", "dns", "ip", "protocol", "router"],
+        "threat_actor": ["apt", "threat actor", "group", "nation state", "campaign", "hacker"],
+        "infrastructure": ["c2", "command and control", "infrastructure", "host", "domain", "server"],
+        "defense": ["defense", "protection", "security", "mitigation", "incident response", "soc"],
+        "compliance": ["compliance", "regulation", "standard", "iso", "gdpr", "hipaa", "pci"],
+        "iot": ["iot", "internet of things", "smart device", "embedded", "firmware"],
+        "cloud": ["cloud", "aws", "azure", "gcp", "saas", "paas", "iaas"]
+    }
 }
+
+# Runtime configuration (will be loaded from config.json)
+CONFIG = DEFAULT_CONFIG.copy()
+
+def load_config(config_file):
+    """Load the application configuration from file."""
+    global CONFIG
+    
+    try:
+        with open(config_file, 'r') as f:
+            user_config = json.load(f)
+        
+        # Update the default configuration with user values
+        for key, value in user_config.items():
+            if key == "categories" and isinstance(value, dict):
+                # Merge categories rather than replace
+                CONFIG["categories"].update(value)
+            else:
+                CONFIG[key] = value
+        
+        console.print(f"[green]Configuration loaded from {config_file}[/green]")
+        return True
+    
+    except FileNotFoundError:
+        console.print(f"[yellow]Config file {config_file} not found. Using defaults.[/yellow]")
+        return False
+    
+    except json.JSONDecodeError:
+        console.print(f"[bold red]Error parsing {config_file}. Invalid JSON. Using defaults.[/bold red]")
+        return False
+    
+    except Exception as e:
+        console.print(f"[bold red]Error loading config: {str(e)}. Using defaults.[/bold red]")
+        return False
 
 def extract_rss_feed_urls(feeds_data):
     """Extract and attempt to find RSS feed URLs from the provided feed data."""
@@ -85,14 +119,17 @@ def extract_rss_feed_urls(feeds_data):
             
             for path in common_paths:
                 test_url = f"https://{domain}{path}"
-                resp = requests.head(test_url, timeout=5, headers={"User-Agent": USER_AGENT})
-                if resp.status_code == 200 and any(ct in resp.headers.get("Content-Type", "").lower() 
-                                                for ct in ["xml", "rss", "atom"]):
-                    rss_feed_urls.append((feed["name"], test_url))
-                    break
-            
-            # If no common patterns work, try the original URL
-            rss_feed_urls.append((feed["name"], feed_url))
+                try:
+                    resp = requests.head(test_url, timeout=5, headers={"User-Agent": CONFIG["user_agent"]})
+                    if resp.status_code == 200 and any(ct in resp.headers.get("Content-Type", "").lower() 
+                                                    for ct in ["xml", "rss", "atom"]):
+                        rss_feed_urls.append((feed["name"], test_url))
+                        break
+                except:
+                    continue
+            else:
+                # If no common patterns work, try the original URL
+                rss_feed_urls.append((feed["name"], feed_url))
             
         except Exception as e:
             # If we can't find an RSS feed, we'll just use the original URL
@@ -108,7 +145,7 @@ def categorize_entry(entry):
     
     # Check against our category keywords
     scores = {}
-    for category, keywords in CATEGORY_KEYWORDS.items():
+    for category, keywords in CONFIG["categories"].items():
         score = sum(1 for keyword in keywords if keyword in text)
         if score > 0:
             scores[category] = score
@@ -123,7 +160,7 @@ def categorize_entry(entry):
 def fetch_feed(feed_name, feed_url):
     """Fetch a single feed and return parsed entries."""
     try:
-        feed = feedparser.parse(feed_url, agent=USER_AGENT)
+        feed = feedparser.parse(feed_url, agent=CONFIG["user_agent"])
         
         entries = []
         for entry in feed.entries:
@@ -197,7 +234,7 @@ def update_feeds(feeds):
         all_entries.sort(key=lambda e: e['published'], reverse=True)
         
         # Limit to max entries
-        all_entries = all_entries[:MAX_ENTRIES]
+        all_entries = all_entries[:CONFIG["max_entries"]]
         
         # Update global entries with lock
         with feed_lock:
@@ -305,7 +342,7 @@ def update_display_thread():
             while not stop_event.is_set():
                 # Check if it's time for an update
                 current_time = time.time()
-                if current_time - last_update >= UPDATE_INTERVAL:
+                if current_time - last_update >= CONFIG["update_interval"]:
                     update_feeds(feeds)
                     last_update = current_time
                 
@@ -338,17 +375,43 @@ def signal_handler(sig, frame):
     time.sleep(1)
     sys.exit(0)
 
-def load_config():
-    """Load configuration from file."""
+def load_feed_sources():
+    """Load feed sources from the specified file."""
     try:
-        with open(CONFIG_FILE, 'r') as f:
+        feed_sources_file = CONFIG["feed_sources_file"]
+        with open(feed_sources_file, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
-        console.print(f"[bold red]Config file {CONFIG_FILE} not found.[/bold red]")
+        console.print(f"[bold red]Feed sources file {feed_sources_file} not found.[/bold red]")
         sys.exit(1)
     except json.JSONDecodeError:
-        console.print(f"[bold red]Error parsing {CONFIG_FILE}. Invalid JSON.[/bold red]")
+        console.print(f"[bold red]Error parsing {feed_sources_file}. Invalid JSON.[/bold red]")
         sys.exit(1)
+
+def handle_keyboard_input():
+    """Handle keyboard input for user interaction."""
+    while not stop_event.is_set():
+        try:
+            # Wait for keyboard input without blocking
+            if msvcrt.kbhit():
+                key = msvcrt.getch().decode('utf-8').lower()
+                
+                if key == 'q':
+                    # Quit
+                    signal_handler(signal.SIGINT, None)
+                
+                elif key == 'r':
+                    # Refresh feeds
+                    console.print("[yellow]Manual refresh triggered...[/yellow]")
+                    update_feeds(feeds)
+                
+                # Add more keyboard handlers here
+                
+            time.sleep(0.1)
+                
+        except Exception as e:
+            console.print(f"[red]Keyboard input error: {str(e)}[/red]")
+            time.sleep(1)
 
 def main():
     global feeds
@@ -358,12 +421,8 @@ def main():
     
     # Parse arguments
     parser = argparse.ArgumentParser(description="CyberFeed - Cybersecurity Threat Intelligence Feed CLI")
-    parser.add_argument("--config", help=f"Path to config file (default: {CONFIG_FILE})")
+    parser.add_argument("--config", default="config.json", help="Path to config file (default: config.json)")
     args = parser.parse_args()
-    
-    if args.config:
-        global CONFIG_FILE
-        CONFIG_FILE = args.config
     
     # Display startup banner
     console.print(Panel.fit(
@@ -373,10 +432,13 @@ def main():
     console.print("\n[yellow]Starting up...[/yellow]")
     
     # Load config
-    config = load_config()
+    load_config(args.config)
+    
+    # Load feed sources
+    feed_sources = load_feed_sources()
     
     # Extract RSS feeds
-    feeds = extract_rss_feed_urls(config)
+    feeds = extract_rss_feed_urls(feed_sources)
     console.print(f"[green]Loaded [bold]{len(feeds)}[/bold] feed sources.[/green]")
     
     # Initial feed update
@@ -387,6 +449,17 @@ def main():
     display_thread = threading.Thread(target=update_display_thread)
     display_thread.daemon = True
     display_thread.start()
+    
+    # Try to import platform-specific keyboard handling
+    try:
+        import msvcrt
+        # Start keyboard input handler on Windows
+        keyboard_thread = threading.Thread(target=handle_keyboard_input)
+        keyboard_thread.daemon = True
+        keyboard_thread.start()
+    except ImportError:
+        # Not on Windows, we'll rely on signal handling only
+        console.print("[yellow]Keyboard controls limited on this platform (use Ctrl+C to quit)[/yellow]")
     
     # Main loop - wait for stop event
     try:

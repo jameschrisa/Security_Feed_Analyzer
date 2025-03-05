@@ -1,0 +1,18 @@
+{
+  "update_interval": 60,
+  "max_entries": 100,
+  "user_agent": "CyberFeed CLI/1.0",
+  "categories": {
+    "malware": ["malware", "virus", "trojan", "ransomware", "botnet", "worm", "spyware"],
+    "phishing": ["phish", "phishing", "social engineering", "scam", "fraud"],
+    "vulnerability": ["vuln", "cve", "exploit", "disclosure", "patch", "bug", "zero-day", "0day"],
+    "network": ["network", "traffic", "packet", "dns", "ip", "protocol", "router"],
+    "threat_actor": ["apt", "threat actor", "group", "nation state", "campaign", "hacker"],
+    "infrastructure": ["c2", "command and control", "infrastructure", "host", "domain", "server"],
+    "defense": ["defense", "protection", "security", "mitigation", "incident response", "soc"],
+    "compliance": ["compliance", "regulation", "standard", "iso", "gdpr", "hipaa", "pci"],
+    "iot": ["iot", "internet of things", "smart device", "embedded", "firmware"],
+    "cloud": ["cloud", "aws", "azure", "gcp", "saas", "paas", "iaas"]
+  },
+  "feed_sources_file": "valid-threat-intel-feeds.json"
+}
